@@ -21,7 +21,6 @@ gcp-cicd-gke-github-repo (Private)
 
 ## Step 2 — Code Build yaml file
 
-### cloudbuild: 
 - cloudbuild.yaml
 ```
 steps:
@@ -118,7 +117,7 @@ gcloud container clusters create dev-cluster1 \
 
 ```
 
- ### Step-01: Prod Cluster
+ ### Step-02: Prod Cluster
 - Dev Cluster 
 
 ```
@@ -158,113 +157,86 @@ gcloud container clusters create prod-cluster1 \
 ![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/02-GKE-Cluster.jpg)
 
 
-## Step 3 — Create a Workload Identity Pool
-- Create a Workload Identity Pool
+## Step 4 — Create Docker File for App1 & App2
+- Docker File for App1
+
+```
+FROM nginx
+COPY app1-code /usr/share/nginx/html
+
+```
+- Docker File for App2
+
+```
+FROM nginx
+COPY app2-code /usr/share/nginx/html
 
 ```
 
-
-gcloud iam workload-identity-pools create POOL_ID \
-    --location="global" \
-    --description="DESCRIPTION" \
-    --display-name="DISPLAY_NAME"
-
-gcloud iam workload-identity-pools create github-actions-gke-pool \
-    --project="terraform-project-335577" \
-    --location="global" \
-     --display-name="github-actions-gke-pool" \
-    --description="An Identity Pool forGithub Action For GKE"
-
-gcloud iam workload-identity-pools list --location="global"
-
+## Step 4 —  Create Cloud Deploy
+- pipleline.yaml
 
 ```
 
-## Step 4 —  Create a Workload Identity Provider in that pool
-- Create a Workload Identity Provider
-
-```
-gcloud iam workload-identity-pools providers create-oidc PROVIDER_ID \
-    --project="terraform-project-335577" \
-    --location="global" \
-    --workload-identity-pool="POOL_ID" \
-    --issuer-uri="ISSUER" \
-    --allowed-audiences="AUDIENCE" \
-    --attribute-mapping="MAPPINGS" \
-    --attribute-condition="CONDITIONS"
-    --jwk-json-path="JWK_JSON_PATH"
-
-
-gcloud iam workload-identity-pools providers create-oidc github-gke-actions \
-  --project="terraform-project-335577" \
-  --location="global" \
-  --workload-identity-pool="github-actions-gke-pool" \
-  --display-name="My GitHub repo Provider for GKE" \
-  --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.aud=assertion.aud,attribute.repository=assertion.repository" \
-  --issuer-uri="https://token.actions.githubusercontent.com"
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: gke-cicd-pipeline
+  labels:
+    app: cicd
+description: cicd delivery pipeline
+serialPipeline:
+  stages:
+  - targetId: dev
+    # profiles:
+    # - dev
+  # - targetId: staging
+  #   profiles:
+  #   - staging
+  - targetId: prod
+  #   profiles:
+  #   - prod
 
 ```
 
-google.subject >>>> assertion.sub
-attribute.actor >>>> assertion.actor
-attribute.aud >>>> assertion.aud
-attribute.repository >>>> assertion.repository
- --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.aud=assertion.aud,attribute.repository=assertion.repository"
- --issuer-uri="https://token.actions.githubusercontent.com"
-
-![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-1/gcp-oidc1.jpg)
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/04-Cloud-Deploy1.jpg)
 
 
-## Step 5 —  Allow authentications from the Workload Identity Pool to your Google Cloud Service Account
-
-- Update this value to your GitHub repository.
-```
-export PROJECT_ID="terraform-project-335577"
-export REPO="aslamchandio/gcp-oidc-terraform-gke-github"
-export WORKLOAD_IDENTITY_POOL_ID="projects/276747595521/locations/global/workloadIdentityPools/github-actions-gke-pool"
+- dev.yaml
 
 ```
 
-- Note :
-```
-
- username of github account : aslamchandio
- github repo name: github-actions-gke-pool
-
-```
-
-```
-
-gcloud iam  service-accounts list
-
-terraform-oidc-gke-sac@terraform-project-335577.iam.gserviceaccount.com
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: dev
+  annotations: {}
+  labels: {}
+description: dev
+gke:
+  cluster: projects/prod-project-424777/locations/us-central1/clusters/dev-cluster1
 
 ```
 
-```
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/04-Cloud-Deploy2.jpg)
 
-gcloud iam service-accounts add-iam-policy-binding "terraform-oidc-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --project="${PROJECT_ID}" \
-  --role="roles/iam.workloadIdentityUser" \
-  --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/${REPO}"
+- prod.yaml
 
 ```
-
-![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-1/gcp-oidc.jpg)
-
-
-## Step 6 —  Extract the Workload Identity Provider resource name
-
-```
-gcloud iam workload-identity-pools providers describe my-github-actions \
-  --project="${PROJECT_ID}" \
-  --location="global" \
-  --workload-identity-pool="my-github-actions-pool" \
-  --format="value(name)"
-
-projects/276747595521/locations/global/workloadIdentityPools/my-github-actions-pool/providers/my-github-actions 
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: prod
+  annotations: {}
+  labels: {}
+description: prod
+requireApproval: true
+gke:
+  cluster: projects/prod-project-424777/locations/us-central1/clusters/prod-cluster1
 
 ```
+
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/04-Cloud-Deploy3.jpg)
 
 ## Step 7 —  Use this value as the workload_identity_provider value in the GitHub Actions YAML
 - vpc-ci-prod-create.yaml 
