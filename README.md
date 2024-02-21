@@ -12,13 +12,6 @@ In addition to CI/CD automation, Kubernetes and containers have enabled enterpri
 
 gcp-cicd-gke-github-repo (Private)
 
-
-### References
-- https://cloud.google.com/kubernetes-engine/docs/tutorials/modern-cicd-gke-user-guide
-- https://cloud.google.com/kubernetes-engine/docs/tutorials/modern-cicd-gke-reference-architecture
-- https://medium.com/google-cloud/ci-cd-pipeline-to-deploy-applications-on-google-kubernetes-engine-gke-using-cloud-build-and-cloud-0ee982b37db6
-
-
 ## Step 2 — Code Build yaml file
 
 - cloudbuild.yaml
@@ -173,7 +166,7 @@ COPY app2-code /usr/share/nginx/html
 
 ```
 
-## Step 4 —  Create Cloud Deploy
+## Step 5 —  Create Cloud Deploy
 - pipleline.yaml
 
 ```
@@ -238,7 +231,7 @@ gke:
 
 ![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/06-Cloud-Deploy3.jpg)
 
-## Step 5 —  Create Skaffold file for Code Deploy
+## Step 6 —  Create Skaffold file for Code Deploy
 
 - skaffold.yaml
 
@@ -259,7 +252,7 @@ deploy:
 
 ```
 
-## Step 6 —  Deploy Application on Both Clusters - Kubernetes Folder
+## Step 7 —  Deploy Application on Both Clusters - Kubernetes Folder
 
 - app1.yaml
 
@@ -359,41 +352,56 @@ spec:
 ![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/07-GKE-Cluster1.jpg)
 
 
-## Step 7 —  Artifact Registry
+## Step 8 —  Artifact Registry
 
 - artifact registry docker images
 
 ![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/08-Artifact.jpg)
 
+## Step 9 — Application 
+
+- Application Output on Dev Cluster
+
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/09-App1.jpg)
+
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/10-App2.jpg)
+
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/11-App3.jpg)
+
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/12-gke-dev.jpg)
 
 
+- Application Output on Prod Cluster
 
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/13-App1.jpg)
 
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/14-App2.jpg)
 
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/15-App3.jpg)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![App Screenshot](https://github.com/aslamchandio/random-resources/blob/main/images-2/16-gke-prod.jpg)
 
 
 
 ### References
-- https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
-- https://github.com/google-github-actions/auth?tab=readme-ov-file#indirect-wif
-- https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-google-cloud-platform
+- https://cloud.google.com/kubernetes-engine/docs/tutorials/modern-cicd-gke-user-guide
+- https://cloud.google.com/kubernetes-engine/docs/tutorials/modern-cicd-gke-reference-architecture
+- https://medium.com/google-cloud/ci-cd-pipeline-to-deploy-applications-on-google-kubernetes-engine-gke-using-cloud-build-and-cloud-0ee982b37db6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
