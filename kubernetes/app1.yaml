@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app1-deployment
+  labels:
+    app: my-app1-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app1
+
+  template:
+    metadata:
+      name: my-app1
+      labels:
+        app: my-app1
+    spec:
+      containers:
+        - name: my-container
+          image: us-central1-docker.pkg.dev/prod-project-424777/gke-cicd-repo/app1
+          ports:
+            - containerPort: 80
+---            
+
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: my-app1-lb-service
+  labels:
+    app: my-app1-lb-service
+
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-app1
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80  
